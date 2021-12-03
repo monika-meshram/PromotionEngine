@@ -43,7 +43,6 @@ public class OrderCheckoutServiceImpl implements OrderCheckoutService {
 			orderMap.put(SKUEnum.valueOf(info.getSku()), info.getQuantity());
 		}
 		
-		
 		for(SKUEnum sku : orderMap.keySet()) {
 			if(processedSkuSet.contains(sku)) {
 				continue;
@@ -57,22 +56,10 @@ public class OrderCheckoutServiceImpl implements OrderCheckoutService {
 				allSkuOriginalPriceMap.put(op.getSku(), op.getPrice());
 			}
 			
-			
 			//Check for Individual Promotion Offer
 			if(promotion.isActive() && promotion.getPromotionType().equals(PromotionTypeEnum.IndividualSkuOffer)) {
 				
 				price += applyPromotion(new IndividualSkuOffer(sku, orderMap, promotion, originalPrice));
-				//int price = 0;
-				/*int offersCount;
-				if(orderMap.get(sku) >= promotion.getQuantity()) {
-					offersCount = orderMap.get(sku) / promotion.getQuantity();
-					price += offersCount * promotion.getOfferPrice();
-					offersCount = orderMap.get(sku) % promotion.getQuantity();
-					price += offersCount * originalPrice.getPrice();
-					//System.out.println("Price" + price);
-				} else {
-					price += orderMap.get(sku) * originalPrice.getPrice();
-				}*/
 				processedSkuSet.add(sku);
 				logger.info("sku : Price" + sku + " : " +price);
 			}
@@ -82,55 +69,10 @@ public class OrderCheckoutServiceImpl implements OrderCheckoutService {
 				
 				List<PromotionDetails> combinedPromotionOffers = promotionDetailsRepository.findByPromotionType(PromotionTypeEnum.CombinedSkuOffer.toString());
 				price += applyPromotion(new CombinationSkuOffer(sku, orderMap, originalPrice, processedSkuSet, combinedPromotionOffers, allSkuOriginalPriceMap));
-				
-				
-				//List<PromotionDetails> combinedPromotionOffers = promotionDetailsRepository.findByPromotionType(PromotionTypeEnum.CombinedSkuOffer.toString());
-				/*Map<List<SKUEnum>, Integer> offerSkuPriceMap = new HashMap<List<SKUEnum>, Integer>();
-				for(PromotionDetails details : combinedPromotionOffers) {
-					offerSkuPriceMap.put(details.getSku(), details.getOfferPrice());
-				}
-				
-				for(List<SKUEnum> combinedOfferSku : offerSkuPriceMap.keySet()) {
-					if(combinedOfferSku.contains(sku)) {
-						logger.info("combinedOfferSku contains : " + sku);
-						if(orderMap.keySet().containsAll(combinedOfferSku)) {
-							Map<SKUEnum, Integer> combinedOfferSkuBoughtQuantityMap = new HashMap<>();
-							for(SKUEnum singleSku : combinedOfferSku) {
-								combinedOfferSkuBoughtQuantityMap.put(singleSku, orderMap.get(singleSku));
-							}
-							
-							int minCombinedBoughtQuantity = combinedOfferSkuBoughtQuantityMap.values().stream().min(Comparator.comparing(Integer::valueOf)).orElse(0);
-							
-							if(minCombinedBoughtQuantity > 0) {
-								//get price for combined offer for minimum quantity of all the skus in combined offer
-								price+=minCombinedBoughtQuantity*offerSkuPriceMap.get(combinedOfferSku);
-								
-								// get price for remaining individual quantity for remaining sku in combined offer
-								for(SKUEnum ordereredSku : combinedOfferSkuBoughtQuantityMap.keySet()) {
-									//combinedOfferSkuBoughtQuantityMap.put(ordereredSku, value)
-									
-									int remainingQuantityForRemainingSku = combinedOfferSkuBoughtQuantityMap.get(ordereredSku)-minCombinedBoughtQuantity;
-									if(remainingQuantityForRemainingSku > 0) {
-										OriginalPrice orderedSkuOriginalPrice = originalPriceRepo.findBySku(ordereredSku.toString());
-										price += remainingQuantityForRemainingSku * orderedSkuOriginalPrice.getPrice();
-									}
-									
-								}
-							}
-							
-							logger.info(orderMap + "combinedOfferSku contains list: " + combinedOfferSku);
-							//price+=offerSkuPriceMap.get(combinedOfferSku);
-							processedSkuSet.addAll(combinedOfferSku);
-						} else {
-							price += orderMap.get(sku) * originalPrice.getPrice();
-						}
-						logger.info("sku : Price" + sku + " : " +price);
-					}
-				}*/
 			}
 		}
 		
-		logger.info("Final Price : " + price);
+		logger.info("Final Price of the Order : " + price);
 		return price;
 	}
 	

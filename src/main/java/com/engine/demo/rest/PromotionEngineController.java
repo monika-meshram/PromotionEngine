@@ -31,10 +31,10 @@ public class PromotionEngineController {
 	}
 	
 	@RequestMapping(value = "/processOrder", method = RequestMethod.POST)
-	public int processOrder(@RequestBody Order orderDetails) {
+	public String processOrder(@RequestBody Order orderDetails) {
 		logger.info("Processing Order");
 		int finalPrice = orderCheckoutService.processOrder(orderDetails);
-		return finalPrice;
+		return "Final Price of the Order: " + finalPrice;
 	}
 	
 	@RequestMapping(value = "/saveOriginalPrice", method = RequestMethod.POST)

@@ -37,7 +37,6 @@ public class CombinationSkuOffer implements OfferProcessingStrategy {
 
 	private int performPromotionOperations() {
 		int price = 0;
-		//List<PromotionDetails> combinedPromotionOffers = promotionDetailsRepository.findByPromotionType(PromotionTypeEnum.CombinedSkuOffer.toString());
 		Map<List<SKUEnum>, Integer> offerSkuPriceMap = new HashMap<List<SKUEnum>, Integer>();
 		for (PromotionDetails details : combinedPromotionOffers) {
 			offerSkuPriceMap.put(details.getSku(), details.getOfferPrice());
@@ -45,7 +44,6 @@ public class CombinationSkuOffer implements OfferProcessingStrategy {
 
 		for (List<SKUEnum> combinedOfferSku : offerSkuPriceMap.keySet()) {
 			if (combinedOfferSku.contains(sku)) {
-				//logger.info("combinedOfferSku contains : " + sku);
 				if (orderMap.keySet().containsAll(combinedOfferSku)) {
 					Map<SKUEnum, Integer> combinedOfferSkuBoughtQuantityMap = new HashMap<>();
 					for (SKUEnum singleSku : combinedOfferSku) {
@@ -57,32 +55,23 @@ public class CombinationSkuOffer implements OfferProcessingStrategy {
 
 					if (minCombinedBoughtQuantity > 0) {
 						// get price for combined offer for minimum quantity of all the skus in combined
-						// offer
 						price += minCombinedBoughtQuantity * offerSkuPriceMap.get(combinedOfferSku);
 
 						// get price for remaining individual quantity for remaining sku in combined
-						// offer
 						for (SKUEnum ordereredSku : combinedOfferSkuBoughtQuantityMap.keySet()) {
 							// combinedOfferSkuBoughtQuantityMap.put(ordereredSku, value)
-
 							int remainingQuantityForRemainingSku = combinedOfferSkuBoughtQuantityMap.get(ordereredSku)
 									- minCombinedBoughtQuantity;
 							if (remainingQuantityForRemainingSku > 0) {
 								Integer orderedSkuOriginalPrice = allSkuOriginalPriceMap.get(ordereredSku.toString());
 								price += remainingQuantityForRemainingSku * orderedSkuOriginalPrice;
 							}
-
 						}
 					}
-
-					//logger.info(orderMap + "combinedOfferSku contains list: " + combinedOfferSku);
-					// price+=offerSkuPriceMap.get(combinedOfferSku);
-					//this.processedSku = combinedOfferSku;
 					processedSkuSet.addAll(combinedOfferSku);
 				} else {
 					price += orderMap.get(sku) * originalPrice.getPrice();
 				}
-				//logger.info("sku : Price" + sku + " : " + price);
 			}
 		}
 		return price;
