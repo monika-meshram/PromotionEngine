@@ -1,0 +1,12 @@
+server:
+  #context-path: /promotionEngine
+  port: 9550
+  
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: PromotionEngine
